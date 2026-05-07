@@ -10,7 +10,7 @@ const fetchTodos = async () => {
 }
 
 const addTodo = async () => {
-  await fetch(`http://127.0.0.1:8000/todos?item=${newTodo.value}`, {
+  await fetch(`https://todo-app-hi0d.onrender.com/todos?item=${newTodo.value}`, {
     method: "POST"
   })
   newTodo.value = ""
@@ -18,7 +18,7 @@ const addTodo = async () => {
 }
 
 const deleteTodo = async (id) => {
-  await fetch(`http://127.0.0.1:8000/todos/${id}`, {
+  await fetch(`https://todo-app-hi0d.onrender.com/todos/${id}`, {
     method: "DELETE"
   })
   fetchTodos()
