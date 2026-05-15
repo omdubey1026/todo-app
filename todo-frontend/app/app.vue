@@ -78,9 +78,10 @@ onMounted(fetchTodos)
     <h1>Todo App</h1>
 
     <input
-      v-model="newTodo"
-      placeholder="Enter task"
-    />
+  v-model="newTodo"
+  placeholder="Enter task"
+  @keyup.enter="addTodo"
+/>
 
     <button @click="addTodo">
       Add
