@@ -46,7 +46,7 @@ onMounted(fetchTodos)
 </script>
 
 <template>
-  <div style="padding:20px">
+  <div class="container">
     <h1>Todo App</h1>
 
    <input v-model="newTodo" placeholder="Enter task" />
@@ -69,3 +69,36 @@ onMounted(fetchTodos)
 
   </div>
 </template>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+}
+
+.container {
+  max-width: 500px;
+  margin: 50px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+h1 {
+  text-align: center;
+}
+
+input {
+  padding: 10px;
+  width: 70%;
+  margin-right: 10px;
+}
+
+button {
+  padding: 10px;
+  cursor: pointer;
+}
+
+li {
+  margin-top: 10px;
+}
+</style>
