@@ -57,16 +57,14 @@ def add_todo(item: str):
 
 
 @app.delete("/todos/{id}")
-
 def delete_todo(id: int):
     cursor.execute(
         "DELETE FROM todos WHERE id = ?",
         (id,)
     )
-
     conn.commit()
-
     return {"message": "deleted"}
+
 
 @app.delete("/todos/completed")
 def delete_completed():
