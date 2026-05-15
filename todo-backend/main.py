@@ -12,7 +12,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-conn = sqlite3.connect("todos.db", check_same_thread=False)
+conn = sqlite3.connect(
+    "todos.db",
+    check_same_thread=False
+)
+
 cursor = conn.cursor()
 
 cursor.execute("""
@@ -24,14 +28,6 @@ CREATE TABLE IF NOT EXISTS todos (
 """)
 
 conn.commit()
-
-try:
-    cursor.execute(
-        "ALTER TABLE todos ADD COLUMN completed INTEGER DEFAULT 0"
-    )
-    conn.commit()
-except:
-    pass
 
 
 @app.get("/")
@@ -48,9 +44,10 @@ def get_todos():
 @app.post("/todos")
 def add_todo(item: str):
     cursor.execute(
-        "INSERT INTO todos (task, completed) VALUES (?, ?)",
-        (item, 0)
+        "INSERT INTO todos (task) VALUES (?)",
+        (item,)
     )
+
     conn.commit()
 
     return {"message": "added"}
@@ -81,23 +78,17 @@ def update_todo(id: int, item: str):
 
 
 @app.put("/todos/{id}/complete")
-def complete_todo(id: int):
+def toggle_complete(id: int):
     cursor.execute(
-        """
-        UPDATE todos
-        SET completed =
-        CASE
-            WHEN completed = 0 THEN 1
-            ELSE 0
-        END
-        WHERE id = ?
-        """,
+        "UPDATE todos SET completed = NOT completed WHERE id = ?",
         (id,)
     )
 
     conn.commit()
 
-    return {"message": "completed updated"}
+    return {"message": "toggled"}
+
+
 @app.delete("/todos/completed")
 def clear_completed():
     cursor.execute(
