@@ -76,23 +76,23 @@ onMounted(fetchTodos)
 
 <template>
   <div class="container">
-    <h1>📝 Todo App</h1>
+    <h1>✨ My Todo Space</h1>
 
     <div class="stats">
-      <p>Total: <b>{{ todos.length }}</b></p>
-      <p>Completed: <b>{{ todos.filter(t => t.completed).length }}</b></p>
+      <p>📌 Total: <b>{{ todos.length }}</b></p>
+      <p>✅ Done: <b>{{ todos.filter(t => t.completed).length }}</b></p>
     </div>
 
     <div class="input-box">
       <input
         v-model="newTodo"
-        placeholder="Enter new task..."
+        placeholder="What do you want to do?"
         @keyup.enter="addTodo"
       />
-      <button @click="addTodo">➕ Add</button>
+      <button @click="addTodo">Add +</button>
     </div>
 
-    <ul>
+    <transition-group name="list" tag="ul">
       <li
         v-for="todo in todos"
         :key="todo.id"
@@ -107,33 +107,41 @@ onMounted(fetchTodos)
           <button @click="deleteTodo(todo.id)">❌</button>
         </div>
       </li>
-    </ul>
+    </transition-group>
   </div>
 </template>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
-  color: white;
+  font-family: 'Segoe UI', sans-serif;
   margin: 0;
+  background: radial-gradient(circle at top, #1e293b, #0f172a);
+  color: white;
 }
 
 /* container */
 .container {
   max-width: 520px;
   margin: 60px auto;
-  background: rgba(255, 255, 255, 0.05);
   padding: 25px;
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  transform: translateY(0);
+  animation: floatIn 0.6s ease;
+}
+
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* title */
 h1 {
   text-align: center;
-  background: linear-gradient(90deg, #4facfe, #00f2fe);
+  font-size: 28px;
+  background: linear-gradient(90deg, #38bdf8, #a78bfa);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -143,11 +151,10 @@ h1 {
   display: flex;
   justify-content: space-between;
   margin: 15px 0;
-  font-size: 14px;
   color: #cbd5e1;
 }
 
-/* input box */
+/* input */
 .input-box {
   display: flex;
   gap: 10px;
@@ -157,23 +164,24 @@ h1 {
 input {
   flex: 1;
   padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: #111827;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  background: #0b1220;
   color: white;
   outline: none;
-  border: 1px solid #334155;
+  transition: 0.2s;
 }
 
 input:focus {
-  border: 1px solid #38bdf8;
+  border-color: #38bdf8;
+  box-shadow: 0 0 10px #38bdf8;
 }
 
-/* add button */
+/* button */
 button {
   padding: 10px 14px;
+  border-radius: 12px;
   border: none;
-  border-radius: 10px;
   cursor: pointer;
   background: linear-gradient(135deg, #38bdf8, #6366f1);
   color: white;
@@ -182,39 +190,41 @@ button {
 }
 
 button:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
-/* todo list */
+/* list */
 ul {
   list-style: none;
   padding: 0;
 }
 
+/* todo item */
 .todo-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px;
   margin-bottom: 10px;
-  border-radius: 12px;
+  border-radius: 14px;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.1);
-  transition: 0.2s;
+  transition: 0.25s;
 }
 
 .todo-item:hover {
-  background: rgba(255,255,255,0.1);
+  transform: translateY(-3px);
+  background: rgba(255,255,255,0.12);
 }
 
-/* completed style */
+/* done animation */
 .todo-item.done {
   text-decoration: line-through;
-  opacity: 0.6;
-  color: #94a3b8;
+  opacity: 0.5;
+  transform: scale(0.98);
 }
 
-/* action buttons */
+/* buttons */
 .actions button {
   margin-left: 6px;
   background: #1f2937;
@@ -224,13 +234,18 @@ ul {
   background: #334155;
 }
 
-/* smooth animation */
-.todo-item {
-  animation: fadeIn 0.3s ease;
+/* LIST ANIMATION */
+.list-enter-active, .list-leave-active {
+  transition: all 0.4s ease;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.list-enter-from {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
 }
 </style>
