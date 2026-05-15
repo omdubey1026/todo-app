@@ -1,23 +1,18 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue"
 
 const todos = ref([])
 const newTodo = ref("")
 
+// GET TODOS
 const fetchTodos = async () => {
-  const res = await fetch(
-    "https://todo-app-hi0d.onrender.com/todos"
-  )
-
+  const res = await fetch("https://todo-app-hi0d.onrender.com/todos")
   const data = await res.json()
 
-  todos.value = data.map(todo => ({
-    id: todo[0],
-    task: todo[1],
-    completed: todo[2]
-  }))
+  todos.value = data
 }
 
+// ADD TODO
 const addTodo = async () => {
   if (!newTodo.value) return
 
@@ -29,10 +24,10 @@ const addTodo = async () => {
   )
 
   newTodo.value = ""
-
   fetchTodos()
 }
 
+// DELETE
 const deleteTodo = async (id) => {
   await fetch(
     `https://todo-app-hi0d.onrender.com/todos/${id}`,
@@ -44,9 +39,23 @@ const deleteTodo = async (id) => {
   fetchTodos()
 }
 
+// TOGGLE COMPLETE
+const toggleComplete = async (id) => {
+  if (!id) return
+
+  await fetch(
+    `https://todo-app-hi0d.onrender.com/todos/${id}/complete`,
+    {
+      method: "PUT"
+    }
+  )
+
+  fetchTodos()
+}
+
+// EDIT
 const editTodo = async (id, oldText) => {
   const newText = prompt("Edit todo:", oldText)
-
   if (!newText) return
 
   await fetch(
@@ -59,17 +68,7 @@ const editTodo = async (id, oldText) => {
   fetchTodos()
 }
 
-const toggleComplete = async (id) => {
-  await fetch(
-    `https://todo-app-hi0d.onrender.com/todos/${id}/complete`,
-    {
-      method: "PUT"
-    }
-  )
-
-  fetchTodos()
-}
-
+// CLEAR COMPLETED
 const clearCompleted = async () => {
   await fetch(
     "https://todo-app-hi0d.onrender.com/todos/completed",
@@ -88,98 +87,58 @@ onMounted(fetchTodos)
   <div class="container">
     <h1>Todo App</h1>
 
-    <p>Total Tasks: {{ todos.length }}</p>
+    <p>Total: {{ todos.length }}</p>
 
     <p>
       Completed:
-      {{
-        todos.filter(todo => todo.completed).length
-      }}
+      {{ todos.filter(t => t.completed).length }}
     </p>
 
-    <input
-      v-model="newTodo"
-      placeholder="Enter task"
-      @keyup.enter="addTodo"
-    />
+    <input v-model="newTodo" @keyup.enter="addTodo" />
 
-    <button @click="addTodo">
-      Add
-    </button>
+    <button @click="addTodo">Add</button>
 
     <ul>
       <li
         v-for="todo in todos"
         :key="todo.id"
-        :style="{
-          textDecoration: todo.completed
-            ? 'line-through'
-            : 'none',
-
-          color: todo.completed
-            ? 'lightgreen'
-            : 'white'
-        }"
+        :style="{ textDecoration: todo.completed ? 'line-through' : '' }"
       >
         {{ todo.task }}
 
-        <button @click="toggleComplete(todo.id)">
-          ✔️
-        </button>
-
-        <button @click="editTodo(todo.id, todo.task)">
-          ✏️
-        </button>
-
-        <button @click="deleteTodo(todo.id)">
-          ❌
-        </button>
+        <button @click="toggleComplete(todo.id)">✔️</button>
+        <button @click="editTodo(todo.id, todo.task)">✏️</button>
+        <button @click="deleteTodo(todo.id)">❌</button>
       </li>
     </ul>
 
-    <button @click="clearCompleted">
-      Clear Completed
-    </button>
+    <button @click="clearCompleted">Clear Completed</button>
   </div>
 </template>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background: #121212;
+  font-family: Arial;
+  background: #111;
   color: white;
 }
 
 .container {
   max-width: 500px;
   margin: 50px auto;
-  background: #1e1e1e;
   padding: 20px;
+  background: #222;
   border-radius: 10px;
-}
-
-h1 {
-  text-align: center;
 }
 
 input {
   padding: 10px;
   width: 70%;
-  margin-right: 10px;
-  background: #333;
-  color: white;
-  border: none;
 }
 
 button {
-  padding: 10px;
-  margin-left: 5px;
+  margin: 5px;
+  padding: 8px;
   cursor: pointer;
-  border: none;
-  border-radius: 5px;
-}
-
-li {
-  margin-top: 10px;
 }
 </style>
