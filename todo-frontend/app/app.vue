@@ -42,6 +42,17 @@ const editTodo = async (id, oldText) => {
   fetchTodos()
 }
 
+const toggleComplete = async (id) => {
+  await fetch(
+    `https://todo-app-hi0d.onrender.com/todos/${id}/complete`,
+    {
+      method: "PUT"
+    }
+  )
+
+  fetchTodos()
+}
+
 onMounted(fetchTodos)
 </script>
 
@@ -51,10 +62,18 @@ onMounted(fetchTodos)
 
    <input v-model="newTodo" placeholder="Enter task" />
 
-<button @click="addTodo">Add</button>
+<<button @click="toggleComplete(todo[0])">
+  ✔️
+</button>
 
 <ul>
-  <li v-for="todo in todos" :key="todo[0]">
+  <li
+  v-for="todo in todos"
+  :key="todo[0]"
+  :style="{
+    textDecoration: todo[2] ? 'line-through' : 'none'
+  }"
+>
     {{ todo[1] }}
 
     <button @click="editTodo(todo[0], todo[1])">

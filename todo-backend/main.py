@@ -23,12 +23,12 @@ app.add_middleware(
 conn = sqlite3.connect("todos.db", check_same_thread=False)
 cursor = conn.cursor()
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS todos (
+cursor.execute(""" CREATE TABLE IF NOT EXISTS todos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    task TEXT
+    task TEXT,
+    completed INTEGER DEFAULT 0
 )
-""")
+ """)
 conn.commit()
 
 
@@ -56,8 +56,12 @@ def delete_todo(id: int):
     conn.commit()
     return {"message": "deleted"}
 
-@app.put("/todos/{id}")
-def update_todo(id: int, item: str):
-    cursor.execute("UPDATE todos SET task = ? WHERE id = ?", (item, id))
+@app.put("/todos/{id}/complete")
+def complete_todo(id: int):
+    cursor.execute(
+        "UPDATE todos SET completed = NOT completed WHERE id = ?",
+        (id,)
+    )
     conn.commit()
+
     return {"message": "updated"}
