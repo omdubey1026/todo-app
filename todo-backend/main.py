@@ -98,3 +98,12 @@ def complete_todo(id: int):
     conn.commit()
 
     return {"message": "completed updated"}
+@app.delete("/todos/completed")
+def clear_completed():
+    cursor.execute(
+        "DELETE FROM todos WHERE completed = 1"
+    )
+
+    conn.commit()
+
+    return {"message": "completed todos deleted"}

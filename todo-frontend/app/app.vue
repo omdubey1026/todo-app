@@ -113,6 +113,17 @@ onMounted(fetchTodos)
         <button @click="toggleComplete(todo.id)">
           ✔️
         </button>
+        const clearCompleted = async () => {
+  await fetch(
+    "https://todo-app-hi0d.onrender.com/todos/completed",
+    {
+      method: "DELETE"
+    }
+  )
+
+  fetchTodos()
+}
+
 
         <button @click="editTodo(todo.id, todo.task)">
           ✏️
@@ -122,6 +133,10 @@ onMounted(fetchTodos)
           ❌
         </button>
       </li>
+      <button @click="clearCompleted">
+  Clear Completed
+</button>
+
     </ul>
   </div>
 </template>
