@@ -92,10 +92,13 @@ onMounted(fetchTodos)
         v-for="todo in todos"
         :key="todo.id"
         :style="{
-          textDecoration: todo.completed
-            ? 'line-through'
-            : 'none'
-        }"
+  textDecoration: todo.completed
+    ? 'line-through'
+    : 'none',
+  color: todo.completed
+    ? 'lightgreen'
+    : 'white'
+}"
       >
         {{ todo.task }}
 
