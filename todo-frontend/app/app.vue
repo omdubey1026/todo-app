@@ -1,14 +1,15 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const todos = ref([])
 const newTodo = ref("")
 
-const fetchTodos = async () => {
-  const res = await fetch(
-    "https://todo-app-hi0d.onrender.com/todos"
-  )
+const filter = ref("all")
+const search = ref("")
 
+// FETCH TODOS
+const fetchTodos = async () => {
+  const res = await fetch("https://todo-app-hi0d.onrender.com/todos")
   const data = await res.json()
 
   todos.value = data.map(todo => ({
@@ -18,83 +19,110 @@ const fetchTodos = async () => {
   }))
 }
 
+// ADD
 const addTodo = async () => {
   if (!newTodo.value) return
 
   await fetch(
     `https://todo-app-hi0d.onrender.com/todos?item=${newTodo.value}`,
-    {
-      method: "POST"
-    }
+    { method: "POST" }
   )
 
   newTodo.value = ""
-
-  fetchTodos()
+  await fetchTodos()
 }
 
+// DELETE
 const deleteTodo = async (id) => {
   await fetch(
     `https://todo-app-hi0d.onrender.com/todos/${id}`,
-    {
-      method: "DELETE"
-    }
+    { method: "DELETE" }
   )
 
-  fetchTodos()
+  await fetchTodos()
 }
 
-const editTodo = async (id, oldText) => {
-  const newText = prompt("Edit todo:", oldText)
+// TOGGLE
+const toggleComplete = async (id) => {
+  await fetch(
+    `https://todo-app-hi0d.onrender.com/todos/${id}/complete`,
+    { method: "PUT" }
+  )
 
+  await fetchTodos()
+}
+
+// EDIT
+const editTodo = async (id, oldText) => {
+  const newText = prompt("Edit task:", oldText)
   if (!newText) return
 
   await fetch(
     `https://todo-app-hi0d.onrender.com/todos/${id}?item=${newText}`,
-    {
-      method: "PUT"
-    }
+    { method: "PUT" }
   )
 
-  fetchTodos()
+  await fetchTodos()
 }
 
-const toggleComplete = async (id) => {
-  await fetch(
-    `https://todo-app-hi0d.onrender.com/todos/${id}/complete`,
-    {
-      method: "PUT"
-    }
-  )
+// FILTERED + SEARCHED TODOS
+const filteredTodos = computed(() => {
+  return todos.value.filter(todo => {
+    const matchSearch = todo.task
+      .toLowerCase()
+      .includes(search.value.toLowerCase())
 
-  fetchTodos()
-}
+    const matchFilter =
+      filter.value === "all" ||
+      (filter.value === "active" && !todo.completed) ||
+      (filter.value === "done" && todo.completed)
 
+    return matchSearch && matchFilter
+  })
+})
 
 onMounted(fetchTodos)
 </script>
 
 <template>
   <div class="container">
-    <h1>✨ My Todo Space</h1>
 
-    <div class="stats">
-      <p>📌 Total: <b>{{ todos.length }}</b></p>
-      <p>✅ Done: <b>{{ todos.filter(t => t.completed).length }}</b></p>
+    <h1>🚀 Task Dashboard</h1>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress">
+      <div
+        class="bar"
+        :style="{
+          width: (todos.filter(t => t.completed).length / (todos.length || 1)) * 100 + '%'
+        }"
+      ></div>
     </div>
 
+    <!-- SEARCH -->
+    <input v-model="search" placeholder="🔍 Search tasks..." />
+
+    <!-- FILTERS -->
+    <div class="filters">
+      <button @click="filter='all'">All</button>
+      <button @click="filter='active'">Active</button>
+      <button @click="filter='done'">Done</button>
+    </div>
+
+    <!-- INPUT -->
     <div class="input-box">
       <input
         v-model="newTodo"
-        placeholder="What do you want to do?"
+        placeholder="Add new task..."
         @keyup.enter="addTodo"
       />
-      <button @click="addTodo">Add +</button>
+      <button @click="addTodo">Add</button>
     </div>
 
-    <transition-group name="list" tag="ul">
+    <!-- LIST -->
+    <ul>
       <li
-        v-for="todo in todos"
+        v-for="todo in filteredTodos"
         :key="todo.id"
         class="todo-item"
         :class="{ done: todo.completed }"
@@ -107,19 +135,19 @@ onMounted(fetchTodos)
           <button @click="deleteTodo(todo.id)">❌</button>
         </div>
       </li>
-    </transition-group>
+    </ul>
+
   </div>
 </template>
 
 <style>
 body {
-  font-family: 'Segoe UI', sans-serif;
+  font-family: Arial, sans-serif;
   margin: 0;
   background: radial-gradient(circle at top, #1e293b, #0f172a);
   color: white;
 }
 
-/* container */
 .container {
   max-width: 520px;
   margin: 60px auto;
@@ -128,124 +156,106 @@ body {
   background: rgba(255,255,255,0.06);
   backdrop-filter: blur(12px);
   box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-  transform: translateY(0);
-  animation: floatIn 0.6s ease;
 }
 
-@keyframes floatIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* title */
 h1 {
   text-align: center;
-  font-size: 28px;
   background: linear-gradient(90deg, #38bdf8, #a78bfa);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* stats */
-.stats {
-  display: flex;
-  justify-content: space-between;
-  margin: 15px 0;
-  color: #cbd5e1;
+.progress {
+  height: 8px;
+  background: #1f2937;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 15px;
 }
 
-/* input */
-.input-box {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+.bar {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #a78bfa);
+  transition: width 0.4s ease;
 }
 
 input {
-  flex: 1;
+  width: 100%;
   padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #334155;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: none;
   background: #0b1220;
   color: white;
   outline: none;
-  transition: 0.2s;
 }
 
-input:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 10px #38bdf8;
+.filters {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
 }
 
-/* button */
-button {
-  padding: 10px 14px;
-  border-radius: 12px;
+.filters button {
+  flex: 1;
+  background: #111827;
   border: none;
+  padding: 8px;
+  color: white;
+  border-radius: 8px;
   cursor: pointer;
+}
+
+.filters button:hover {
+  background: #334155;
+}
+
+.input-box {
+  display: flex;
+  gap: 10px;
+}
+
+.input-box button {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
   background: linear-gradient(135deg, #38bdf8, #6366f1);
   color: white;
-  font-weight: bold;
-  transition: 0.2s;
+  cursor: pointer;
 }
 
-button:hover {
-  transform: scale(1.08);
-}
-
-/* list */
 ul {
   list-style: none;
   padding: 0;
+  margin-top: 15px;
 }
 
-/* todo item */
 .todo-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   padding: 12px;
   margin-bottom: 10px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  transition: 0.25s;
+  transition: 0.2s;
 }
 
-.todo-item:hover {
-  transform: translateY(-3px);
-  background: rgba(255,255,255,0.12);
-}
-
-/* done animation */
 .todo-item.done {
   text-decoration: line-through;
   opacity: 0.5;
-  transform: scale(0.98);
 }
 
-/* buttons */
 .actions button {
-  margin-left: 6px;
+  margin-left: 5px;
   background: #1f2937;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
 }
 
 .actions button:hover {
   background: #334155;
-}
-
-/* LIST ANIMATION */
-.list-enter-active, .list-leave-active {
-  transition: all 0.4s ease;
-}
-
-.list-enter-from {
-  opacity: 0;
-  transform: translateX(-20px);
-}
-
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(20px);
 }
 </style>
