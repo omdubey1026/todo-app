@@ -29,11 +29,15 @@ const deleteTodo = async (id) => {
 
 const editTodo = async (id, oldText) => {
   const newText = prompt("Edit todo:", oldText)
+
   if (!newText) return
 
-  await fetch(`https://todo-app-hi0d.onrender.com`, {
-    method: "PUT"
-  })
+  await fetch(
+    `https://todo-app-hi0d.onrender.com/todos/${id}?item=${newText}`,
+    {
+      method: "PUT"
+    }
+  )
 
   fetchTodos()
 }
