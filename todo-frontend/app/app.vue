@@ -117,13 +117,14 @@ onMounted(fetchTodos)
 <style>
 body {
   font-family: Arial, sans-serif;
-  background: #f4f4f4;
+  background: #121212;
+  color: white;
 }
 
 .container {
   max-width: 500px;
   margin: 50px auto;
-  background: white;
+  background: #1e1e1e;
   padding: 20px;
   border-radius: 10px;
 }
@@ -136,12 +137,17 @@ input {
   padding: 10px;
   width: 70%;
   margin-right: 10px;
+  background: #333;
+  color: white;
+  border: none;
 }
 
 button {
   padding: 10px;
   margin-left: 5px;
   cursor: pointer;
+  border: none;
+  border-radius: 5px;
 }
 
 li {
