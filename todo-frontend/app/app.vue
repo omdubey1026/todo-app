@@ -76,6 +76,14 @@ onMounted(fetchTodos)
 <template>
   <div class="container">
     <h1>Todo App</h1>
+    <p>Total Tasks: {{ todos.length }}</p>
+
+<p>
+  Completed:
+  {{
+    todos.filter(todo => todo.completed).length
+  }}
+</p>
 
     <input
   v-model="newTodo"
