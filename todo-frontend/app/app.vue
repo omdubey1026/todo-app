@@ -70,16 +70,6 @@ const toggleComplete = async (id) => {
   fetchTodos()
 }
 
-const clearCompleted = async () => {
-  await fetch(
-    "https://todo-app-hi0d.onrender.com/todos/completed",
-    {
-      method: "DELETE"
-    }
-  )
-
-  fetchTodos()
-}
 
 onMounted(fetchTodos)
 </script>
@@ -137,9 +127,7 @@ onMounted(fetchTodos)
       </li>
     </ul>
 
-    <button @click="clearCompleted">
-      Clear Completed
-    </button>
+    
   </div>
 </template>
 
