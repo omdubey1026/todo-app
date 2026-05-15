@@ -4,7 +4,6 @@ import sqlite3
 
 app = FastAPI()
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,15 +12,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# DATABASE CONNECTION
-conn = sqlite3.connect(
-    "todos.db",
-    check_same_thread=False
-)
-
+conn = sqlite3.connect("todos.db", check_same_thread=False)
 cursor = conn.cursor()
 
-# TABLE CREATE
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS todos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,98 +22,77 @@ CREATE TABLE IF NOT EXISTS todos (
     completed INTEGER DEFAULT 0
 )
 """)
-
 conn.commit()
 
 
-# HOME ROUTE
 @app.get("/")
 def home():
     return {"message": "API running"}
 
 
-# GET TODOS
 @app.get("/todos")
 def get_todos():
     cursor.execute("SELECT * FROM todos")
-    return cursor.fetchall()
+    rows = cursor.fetchall()
+
+    todos = []
+
+    for row in rows:
+        todos.append({
+            "id": row[0],
+            "task": row[1],
+            "completed": bool(row[2])
+        })
+
+    return todos
 
 
-# ADD TODO
 @app.post("/todos")
 def add_todo(item: str):
     cursor.execute(
-        "INSERT INTO todos (task) VALUES (?)",
-        (item,)
+        "INSERT INTO todos (task, completed) VALUES (?, ?)",
+        (item, 0)
     )
-
     conn.commit()
 
     return {"message": "added"}
 
 
-# CLEAR COMPLETED
-# IMPORTANT:
-# This route must stay ABOVE /todos/{id}
-
-@app.delete("/todos/completed")
-def clear_completed():
-
-    cursor.execute(
-        "DELETE FROM todos WHERE completed = 1"
-    )
-
-    conn.commit()
-
-    return {"message": "completed todos deleted"}
-
-
-# DELETE TODO
 @app.delete("/todos/{id}")
 def delete_todo(id: int):
-
-    cursor.execute(
-        "DELETE FROM todos WHERE id = ?",
-        (id,)
-    )
-
+    cursor.execute("DELETE FROM todos WHERE id = ?", (id,))
     conn.commit()
 
     return {"message": "deleted"}
 
 
-# EDIT TODO
 @app.put("/todos/{id}")
 def update_todo(id: int, item: str):
-
     cursor.execute(
         "UPDATE todos SET task = ? WHERE id = ?",
         (item, id)
     )
-
     conn.commit()
 
     return {"message": "updated"}
 
 
-# TOGGLE COMPLETE
 @app.put("/todos/{id}/complete")
-def toggle_complete(id: int):
-
+def complete_todo(id: int):
     cursor.execute(
-        "SELECT completed FROM todos WHERE id = ?",
+        "UPDATE todos SET completed = 1 WHERE id = ?",
         (id,)
     )
-
-    current = cursor.fetchone()[0]
-
-    new_value = 0 if current == 1 else 1
-
-    cursor.execute(
-        "UPDATE todos SET completed = ? WHERE id = ?",
-        (new_value, id)
-    )
-
     conn.commit()
 
-    return {"message": "toggled"}
+    return {"message": "completed"}
+
+
+@app.delete("/todos/completed")
+def clear_completed():
+    cursor.execute(
+        "DELETE FROM todos WHERE completed = 1"
+    )
+    conn.commit()
+
+    return {"message": "completed tasks deleted"}
