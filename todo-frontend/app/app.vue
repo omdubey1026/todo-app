@@ -5,7 +5,7 @@ const todos = ref([])
 const newTodo = ref("")
 
 const fetchTodos = async () => {
-  const res = await fetch("https://todo-app-hi0d.onrender.com")
+  const res = await fetch("https://todo-app-hi0d.onrender.com/todos")
   todos.value = await res.json()
 }
 
