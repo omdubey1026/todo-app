@@ -30,7 +30,11 @@ cursor.execute(""" CREATE TABLE IF NOT EXISTS todos (
 )
  """)
 conn.commit()
-
+try:
+    cursor.execute("ALTER TABLE todos ADD COLUMN completed INTEGER DEFAULT 0")
+    conn.commit()
+except:
+    pass
 
 @app.get("/")
 def home():
