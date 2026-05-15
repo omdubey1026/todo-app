@@ -53,6 +53,20 @@ def add_todo(item: str):
     return {"message": "added"}
 
 
+# IMPORTANT:
+# completed route MUST be above /todos/{id}
+
+@app.delete("/todos/completed")
+def clear_completed():
+    cursor.execute(
+        "DELETE FROM todos WHERE completed = 1"
+    )
+
+    conn.commit()
+
+    return {"message": "completed todos deleted"}
+
+
 @app.delete("/todos/{id}")
 def delete_todo(id: int):
     cursor.execute(
@@ -87,14 +101,3 @@ def toggle_complete(id: int):
     conn.commit()
 
     return {"message": "toggled"}
-
-
-@app.delete("/todos/completed")
-def clear_completed():
-    cursor.execute(
-        "DELETE FROM todos WHERE completed = 1"
-    )
-
-    conn.commit()
-
-    return {"message": "completed todos deleted"}
