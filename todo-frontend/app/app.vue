@@ -114,31 +114,40 @@ onMounted(fetchTodos)
 <style>
 body {
   font-family: Arial, sans-serif;
-  background: #0f0f0f;
-  color: #fff;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: white;
+  margin: 0;
 }
 
+/* container */
 .container {
-  max-width: 500px;
-  margin: 50px auto;
-  background: #1c1c1c;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  max-width: 520px;
+  margin: 60px auto;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
+/* title */
 h1 {
   text-align: center;
-  margin-bottom: 20px;
+  background: linear-gradient(90deg, #4facfe, #00f2fe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
+/* stats */
 .stats {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px;
-  color: #aaa;
+  margin: 15px 0;
+  font-size: 14px;
+  color: #cbd5e1;
 }
 
+/* input box */
 .input-box {
   display: flex;
   gap: 10px;
@@ -147,27 +156,36 @@ h1 {
 
 input {
   flex: 1;
-  padding: 10px;
+  padding: 12px;
   border: none;
-  border-radius: 8px;
-  background: #333;
+  border-radius: 10px;
+  background: #111827;
   color: white;
+  outline: none;
+  border: 1px solid #334155;
 }
 
+input:focus {
+  border: 1px solid #38bdf8;
+}
+
+/* add button */
 button {
-  padding: 10px 12px;
+  padding: 10px 14px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  background: #4cafef;
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
   color: white;
+  font-weight: bold;
   transition: 0.2s;
 }
 
 button:hover {
-  opacity: 0.8;
+  transform: scale(1.05);
 }
 
+/* todo list */
 ul {
   list-style: none;
   padding: 0;
@@ -177,24 +195,42 @@ ul {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #2a2a2a;
-  padding: 10px;
+  padding: 12px;
   margin-bottom: 10px;
-  border-radius: 8px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
   transition: 0.2s;
 }
 
+.todo-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* completed style */
 .todo-item.done {
   text-decoration: line-through;
   opacity: 0.6;
+  color: #94a3b8;
 }
 
+/* action buttons */
 .actions button {
-  margin-left: 5px;
-  background: #444;
+  margin-left: 6px;
+  background: #1f2937;
 }
 
 .actions button:hover {
-  background: #666;
+  background: #334155;
+}
+
+/* smooth animation */
+.todo-item {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
