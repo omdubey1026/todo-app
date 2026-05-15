@@ -10,9 +10,12 @@ const fetchTodos = async () => {
 }
 
 const addTodo = async () => {
+  if (!newTodo.value) return
+
   await fetch(`https://todo-app-hi0d.onrender.com/todos?item=${newTodo.value}`, {
     method: "POST"
   })
+
   newTodo.value = ""
   fetchTodos()
 }
