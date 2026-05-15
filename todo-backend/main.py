@@ -4,7 +4,6 @@ import sqlite3
 
 app = FastAPI()
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,15 +12,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# DB connection
-def get_db():
-    conn = sqlite3.connect("todos.db")
-    cursor = conn.cursor()
-    return conn, cursor
-
-
-# INIT DB (run once safely)
-conn, cursor = get_db()
+conn = sqlite3.connect("todos.db", check_same_thread=False)
+cursor = conn.cursor()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS todos (
@@ -32,113 +24,77 @@ CREATE TABLE IF NOT EXISTS todos (
 """)
 
 conn.commit()
-conn.close()
+
+try:
+    cursor.execute(
+        "ALTER TABLE todos ADD COLUMN completed INTEGER DEFAULT 0"
+    )
+    conn.commit()
+except:
+    pass
 
 
-# HOME
 @app.get("/")
 def home():
     return {"message": "API running"}
 
 
-# GET TODOS
 @app.get("/todos")
 def get_todos():
-    conn, cursor = get_db()
-
     cursor.execute("SELECT * FROM todos")
-    rows = cursor.fetchall()
-
-    conn.close()
-
-    return [
-        {
-            "id": row[0],
-            "task": row[1],
-            "completed": bool(row[2])
-        }
-        for row in rows
-    ]
+    return cursor.fetchall()
 
 
-# ADD TODO
 @app.post("/todos")
 def add_todo(item: str):
-    conn, cursor = get_db()
-
     cursor.execute(
         "INSERT INTO todos (task, completed) VALUES (?, ?)",
         (item, 0)
     )
-
     conn.commit()
-    conn.close()
 
     return {"message": "added"}
 
 
-# TOGGLE COMPLETE
-@app.put("/todos/{id}/complete")
-def toggle_complete(id: int):
-    conn, cursor = get_db()
-
-    cursor.execute("SELECT completed FROM todos WHERE id=?", (id,))
-    row = cursor.fetchone()
-
-    if not row:
-        conn.close()
-        return {"error": "todo not found"}
-
-    new_value = 0 if row[0] == 1 else 1
-
+@app.delete("/todos/{id}")
+def delete_todo(id: int):
     cursor.execute(
-        "UPDATE todos SET completed=? WHERE id=?",
-        (new_value, id)
+        "DELETE FROM todos WHERE id = ?",
+        (id,)
     )
 
     conn.commit()
-    conn.close()
-
-    return {"message": "updated"}
-
-
-# DELETE TODO
-@app.delete("/todos/{id}")
-def delete_todo(id: int):
-    conn, cursor = get_db()
-
-    cursor.execute("DELETE FROM todos WHERE id=?", (id,))
-
-    conn.commit()
-    conn.close()
 
     return {"message": "deleted"}
 
 
-# EDIT TODO
 @app.put("/todos/{id}")
 def update_todo(id: int, item: str):
-    conn, cursor = get_db()
-
     cursor.execute(
-        "UPDATE todos SET task=? WHERE id=?",
+        "UPDATE todos SET task = ? WHERE id = ?",
         (item, id)
     )
 
     conn.commit()
-    conn.close()
 
     return {"message": "updated"}
 
 
-# CLEAR COMPLETED
-@app.delete("/todos/completed")
-def clear_completed():
-    conn, cursor = get_db()
-
-    cursor.execute("DELETE FROM todos WHERE completed=1")
+@app.put("/todos/{id}/complete")
+def complete_todo(id: int):
+    cursor.execute(
+        """
+        UPDATE todos
+        SET completed =
+        CASE
+            WHEN completed = 0 THEN 1
+            ELSE 0
+        END
+        WHERE id = ?
+        """,
+        (id,)
+    )
 
     conn.commit()
-    conn.close()
 
-    return {"message": "completed cleared"}
+    return {"message": "completed updated"}
