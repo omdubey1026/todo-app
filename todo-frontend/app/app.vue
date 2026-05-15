@@ -5,7 +5,7 @@ const todos = ref([])
 const newTodo = ref("")
 
 const fetchTodos = async () => {
-  const res = await fetch("http://127.0.0.1:8000/todos")
+  const res = await fetch("https://todo-app-hi0d.onrender.com")
   todos.value = await res.json()
 }
 
@@ -28,7 +28,7 @@ const editTodo = async (id, oldText) => {
   const newText = prompt("Edit todo:", oldText)
   if (!newText) return
 
-  await fetch(`http://127.0.0.1:8000/todos/${id}?item=${newText}`, {
+  await fetch(`https://todo-app-hi0d.onrender.com`, {
     method: "PUT"
   })
 
