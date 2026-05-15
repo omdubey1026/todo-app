@@ -5,25 +5,42 @@ const todos = ref([])
 const newTodo = ref("")
 
 const fetchTodos = async () => {
-  const res = await fetch("https://todo-app-hi0d.onrender.com/todos")
-  todos.value = await res.json()
+  const res = await fetch(
+    "https://todo-app-hi0d.onrender.com/todos"
+  )
+
+  const data = await res.json()
+
+  todos.value = data.map(todo => ({
+    id: todo[0],
+    task: todo[1],
+    completed: todo[2]
+  }))
 }
 
 const addTodo = async () => {
   if (!newTodo.value) return
 
-  await fetch(`https://todo-app-hi0d.onrender.com/todos?item=${newTodo.value}`, {
-    method: "POST"
-  })
+  await fetch(
+    `https://todo-app-hi0d.onrender.com/todos?item=${newTodo.value}`,
+    {
+      method: "POST"
+    }
+  )
 
   newTodo.value = ""
+
   fetchTodos()
 }
 
 const deleteTodo = async (id) => {
-  await fetch(`https://todo-app-hi0d.onrender.com/todos/${id}`, {
-    method: "DELETE"
-  })
+  await fetch(
+    `https://todo-app-hi0d.onrender.com/todos/${id}`,
+    {
+      method: "DELETE"
+    }
+  )
+
   fetchTodos()
 }
 
@@ -60,34 +77,43 @@ onMounted(fetchTodos)
   <div class="container">
     <h1>Todo App</h1>
 
-   <input v-model="newTodo" placeholder="Enter task" />
+    <input
+      v-model="newTodo"
+      placeholder="Enter task"
+    />
 
-<<button @click="toggleComplete(todo[0])">
-  ✔️
-</button>
-
-<ul>
-  <li
-  v-for="todo in todos"
-  :key="todo[0]"
-  :style="{
-    textDecoration: todo[2] ? 'line-through' : 'none'
-  }"
->
-    {{ todo[1] }}
-
-    <button @click="editTodo(todo[0], todo[1])">
-      ✏️
+    <button @click="addTodo">
+      Add
     </button>
 
-    <button @click="deleteTodo(todo[0])">
-      ❌
-    </button>
-  </li>
-</ul>
+    <ul>
+      <li
+        v-for="todo in todos"
+        :key="todo.id"
+        :style="{
+          textDecoration: todo.completed
+            ? 'line-through'
+            : 'none'
+        }"
+      >
+        {{ todo.task }}
 
+        <button @click="toggleComplete(todo.id)">
+          ✔️
+        </button>
+
+        <button @click="editTodo(todo.id, todo.task)">
+          ✏️
+        </button>
+
+        <button @click="deleteTodo(todo.id)">
+          ❌
+        </button>
+      </li>
+    </ul>
   </div>
 </template>
+
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -114,6 +140,7 @@ input {
 
 button {
   padding: 10px;
+  margin-left: 5px;
   cursor: pointer;
 }
 
