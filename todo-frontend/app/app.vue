@@ -70,50 +70,7 @@ const toggleComplete = async (id) => {
   fetchTodos()
 }
 
-onMounted(fetchTodos)
-</script>
-
-<template>
-  <div class="container">
-    <h1>Todo App</h1>
-    <p>Total Tasks: {{ todos.length }}</p>
-
-<p>
-  Completed:
-  {{
-    todos.filter(todo => todo.completed).length
-  }}
-</p>
-
-    <input
-  v-model="newTodo"
-  placeholder="Enter task"
-  @keyup.enter="addTodo"
-/>
-
-    <button @click="addTodo">
-      Add
-    </button>
-
-    <ul>
-      <li
-        v-for="todo in todos"
-        :key="todo.id"
-        :style="{
-  textDecoration: todo.completed
-    ? 'line-through'
-    : 'none',
-  color: todo.completed
-    ? 'lightgreen'
-    : 'white'
-}"
-      >
-        {{ todo.task }}
-
-        <button @click="toggleComplete(todo.id)">
-          ✔️
-        </button>
-        const clearCompleted = async () => {
+const clearCompleted = async () => {
   await fetch(
     "https://todo-app-hi0d.onrender.com/todos/completed",
     {
@@ -124,6 +81,51 @@ onMounted(fetchTodos)
   fetchTodos()
 }
 
+onMounted(fetchTodos)
+</script>
+
+<template>
+  <div class="container">
+    <h1>Todo App</h1>
+
+    <p>Total Tasks: {{ todos.length }}</p>
+
+    <p>
+      Completed:
+      {{
+        todos.filter(todo => todo.completed).length
+      }}
+    </p>
+
+    <input
+      v-model="newTodo"
+      placeholder="Enter task"
+      @keyup.enter="addTodo"
+    />
+
+    <button @click="addTodo">
+      Add
+    </button>
+
+    <ul>
+      <li
+        v-for="todo in todos"
+        :key="todo.id"
+        :style="{
+          textDecoration: todo.completed
+            ? 'line-through'
+            : 'none',
+
+          color: todo.completed
+            ? 'lightgreen'
+            : 'white'
+        }"
+      >
+        {{ todo.task }}
+
+        <button @click="toggleComplete(todo.id)">
+          ✔️
+        </button>
 
         <button @click="editTodo(todo.id, todo.task)">
           ✏️
@@ -133,11 +135,11 @@ onMounted(fetchTodos)
           ❌
         </button>
       </li>
-      <button @click="clearCompleted">
-  Clear Completed
-</button>
-
     </ul>
+
+    <button @click="clearCompleted">
+      Clear Completed
+    </button>
   </div>
 </template>
 
